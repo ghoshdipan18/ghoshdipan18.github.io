@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dipan Ghosh — Data Scientist & Marketing Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #0f2a4a; --navy-mid: #1a3d6b; --accent: #1d6fa4; --accent-light: #e8f3fb;
+    --accent-mid: #5ba4cf; --gold: #c89f4b; --gold-light: #fdf6e7;
+    --text: #1a1a1a; --text-mid: #3d3d3d; --text-muted: #6b7280;
+    --bg: #fafaf8; --bg-white: #ffffff; --border: #e2e4e8; --border-light: #f0f0ec;
+    --serif: 'Playfair Display', Georgia, serif;
+    --sans: 'DM Sans', system-ui, sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); font-size: 16px; line-height: 1.7; -webkit-font-smoothing: antialiased; }
+  nav { position: fixed; top: 0; left: 0; right: 0; background: rgba(250,250,248,0.93); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-light); z-index: 100; padding: 0 2rem; }
+  .nav-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .nav-logo { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--navy); text-decoration: none; }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { font-size: 0.875rem; font-weight: 500; color: var(--text-muted); text-decoration: none; letter-spacing: 0.02em; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--accent); }
+  section { padding: 5rem 2rem; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .section-label { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem; }
+  .section-title { font-family: var(--serif); font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 700; color: var(--navy); line-height: 1.25; margin-bottom: 1.25rem; }
+  #hero { min-height: 100vh; display: flex; align-items: center; padding-top: 80px; background: linear-gradient(160deg, #f7f9fc 0%, #fafaf8 60%, #f0f4f0 100%); position: relative; overflow: hidden; }
+  #hero::before { content: ''; position: absolute; top: -60px; right: -60px; width: 500px; height: 500px; background: radial-gradient(circle, rgba(29,111,164,0.06) 0%, transparent 70%); pointer-events: none; }
+  .hero-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+  .hero-tag { display: inline-block; background: var(--accent-light); color: var(--accent); font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.35rem 0.85rem; border-radius: 2rem; margin-bottom: 1.25rem; }
+  .hero-name { font-family: var(--serif); font-size: clamp(2.8rem, 5vw, 4.2rem); font-weight: 700; color: var(--navy); line-height: 1.1; margin-bottom: 0.5rem; }
+  .hero-title { font-family: var(--serif); font-size: clamp(1.1rem, 2vw, 1.4rem); color: var(--accent); margin-bottom: 1.5rem; font-style: italic; }
+  .hero-desc { font-size: 1rem; color: var(--text-mid); line-height: 1.75; max-width: 480px; margin-bottom: 2rem; }
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn-primary { background: var(--navy); color: #fff; padding: 0.75rem 1.75rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 600; text-decoration: none; transition: background 0.2s, transform 0.15s; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-primary:hover { background: var(--navy-mid); transform: translateY(-1px); }
+  .btn-outline { border: 1.5px solid var(--navy); color: var(--navy); padding: 0.75rem 1.75rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 600; text-decoration: none; transition: background 0.2s, transform 0.15s; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-outline:hover { background: var(--accent-light); transform: translateY(-1px); }
+  .hero-visual { display: flex; flex-direction: column; gap: 1rem; }
+  .stat-card { background: var(--bg-white); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 1rem; transition: box-shadow 0.2s; }
+  .stat-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+  .stat-icon { width: 44px; height: 44px; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; }
+  .stat-icon.blue { background: var(--accent-light); } .stat-icon.gold { background: var(--gold-light); } .stat-icon.green { background: #eaf6f0; }
+  .stat-num { font-family: var(--serif); font-size: 1.6rem; font-weight: 700; color: var(--navy); line-height: 1; }
+  .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem; }
+  #about { background: var(--bg-white); }
+  .about-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 5rem; align-items: start; }
+  .about-text p { color: var(--text-mid); margin-bottom: 1.25rem; font-size: 1rem; line-height: 1.8; }
+  .expertise-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .expertise-item { background: var(--bg); border: 1px solid var(--border-light); border-radius: 0.5rem; padding: 1rem; border-left: 3px solid var(--accent); }
+  .expertise-item h4 { font-size: 0.825rem; font-weight: 600; color: var(--navy); margin-bottom: 0.35rem; }
+  .expertise-item p { font-size: 0.775rem; color: var(--text-muted); line-height: 1.5; }
+  #experience { background: var(--bg); }
+  .timeline { position: relative; padding-left: 2rem; }
+  .timeline::before { content: ''; position: absolute; left: 0; top: 8px; bottom: 8px; width: 2px; background: var(--border); }
+  .timeline-item { position: relative; margin-bottom: 3rem; }
+  .timeline-item::before { content: ''; position: absolute; left: -2.45rem; top: 8px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); box-shadow: 0 0 0 2px var(--accent); }
+  .timeline-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
+  .timeline-role { font-family: var(--serif); font-size: 1.2rem; font-weight: 700; color: var(--navy); }
+  .timeline-company { font-size: 0.9rem; font-weight: 600; color: var(--accent); margin-top: 0.1rem; }
+  .timeline-date { font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); background: var(--accent-light); padding: 0.25rem 0.75rem; border-radius: 2rem; white-space: nowrap; }
+  .timeline-desc { font-size: 0.9rem; color: var(--text-muted); font-style: italic; margin-bottom: 1rem; }
+  .work-modules { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; }
+  .work-module { background: var(--bg-white); border: 1px solid var(--border); border-radius: 0.5rem; padding: 0.875rem 1rem; }
+  .work-module h4 { font-size: 0.825rem; font-weight: 600; color: var(--navy); margin-bottom: 0.4rem; }
+  .work-module p { font-size: 0.775rem; color: var(--text-muted); line-height: 1.55; }
+  .ownership-badge { display: inline-block; font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.15rem 0.6rem; border-radius: 2rem; margin-bottom: 0.5rem; }
+  .badge-sole { background: #edf7f0; color: #1a7a47; }
+  .badge-team { background: var(--accent-light); color: var(--accent); }
+  .badge-training { background: var(--gold-light); color: #9a6f1a; }
+  #projects { background: var(--bg-white); }
+  .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+  .project-card { background: var(--bg); border: 1px solid var(--border); border-radius: 0.875rem; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; }
+  .project-card:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0,0,0,0.09); }
+  .project-card-top { padding: 1.5rem 1.5rem 0; display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+  .project-icon { width: 48px; height: 48px; border-radius: 0.625rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+  .project-icon.blue { background: var(--accent-light); } .project-icon.gold { background: var(--gold-light); } .project-icon.green { background: #eaf6f0; } .project-icon.purple { background: #f0ecff; } .project-icon.coral { background: #fdf0eb; }
+  .project-tag { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); background: var(--bg-white); border: 1px solid var(--border); padding: 0.2rem 0.6rem; border-radius: 2rem; }
+  .project-body { padding: 1rem 1.5rem 1.5rem; }
+  .project-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--navy); margin-bottom: 0.5rem; }
+  .project-desc { font-size: 0.85rem; color: var(--text-mid); line-height: 1.65; margin-bottom: 1rem; }
+  .project-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .tech-tag { font-family: var(--mono); font-size: 0.7rem; color: var(--accent); background: var(--accent-light); padding: 0.2rem 0.55rem; border-radius: 0.25rem; }
+  #skills { background: var(--navy); color: #fff; }
+  #skills .section-label { color: var(--accent-mid); }
+  #skills .section-title { color: #fff; }
+  .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 2.5rem; }
+  .skill-group { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.75rem; padding: 1.5rem; }
+  .skill-group h3 { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-mid); margin-bottom: 1rem; font-family: var(--mono); }
+  .skill-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .skill-pill { font-size: 0.775rem; color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); padding: 0.25rem 0.65rem; border-radius: 0.25rem; transition: background 0.15s; }
+  .skill-pill:hover { background: rgba(29,111,164,0.4); }
+  #education { background: var(--bg); }
+  .edu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .edu-card { background: var(--bg-white); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.5rem; border-top: 3px solid var(--accent); }
+  .edu-degree { font-family: var(--serif); font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 0.25rem; }
+  .edu-uni { font-size: 0.875rem; color: var(--accent); font-weight: 500; margin-bottom: 0.75rem; }
+  .edu-meta { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .edu-badge { font-family: var(--mono); font-size: 0.7rem; padding: 0.2rem 0.65rem; border-radius: 2rem; background: var(--accent-light); color: var(--accent); }
+  .edu-spec { font-size: 0.8rem; color: var(--text-muted); line-height: 1.55; }
+  #contact { background: var(--bg-white); text-align: center; }
+  .contact-inner { max-width: 600px; margin: 0 auto; }
+  .contact-sub { color: var(--text-muted); margin-bottom: 2.5rem; font-size: 1rem; }
+  .contact-links { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+  .contact-link { display: flex; align-items: center; gap: 0.6rem; padding: 0.8rem 1.5rem; border: 1.5px solid var(--border); border-radius: 0.5rem; text-decoration: none; font-size: 0.875rem; font-weight: 500; color: var(--text); background: var(--bg); transition: border-color 0.2s, background 0.2s, transform 0.15s; }
+  .contact-link:hover { border-color: var(--accent); background: var(--accent-light); color: var(--accent); transform: translateY(-2px); }
+  .contact-link svg { width: 18px; height: 18px; }
+  footer { background: var(--navy); color: rgba(255,255,255,0.45); text-align: center; padding: 1.5rem 2rem; font-size: 0.8rem; font-family: var(--mono); letter-spacing: 0.04em; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .hero-inner > *:nth-child(1) { animation: fadeUp 0.7s ease forwards; opacity: 0; }
+  .hero-inner > *:nth-child(2) { animation: fadeUp 0.7s 0.15s ease forwards; opacity: 0; }
+  @media (max-width: 768px) {
+    .hero-inner, .about-grid, .edu-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+    .nav-links { display: none; }
+    section { padding: 3.5rem 1.25rem; }
+  }
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="#hero" class="nav-logo">Dipan Ghosh</a>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section id="hero">
+  <div class="hero-inner container">
+    <div>
+      <span class="hero-tag">Data Scientist · Marketing Analytics</span>
+      <h1 class="hero-name">Dipan<br>Ghosh</h1>
+      <p class="hero-title">MMM · Attribution · ML Engineering</p>
+      <p class="hero-desc">I sit at the intersection of econometrics, machine learning, and business translation — building models that measure marketing effectiveness, predict operational outcomes, and turn data into decisions.</p>
+      <div class="hero-actions">
+        <a href="#experience" class="btn-primary">View My Work ↓</a>
+        <a href="#contact" class="btn-outline">Get in Touch</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="stat-card"><div class="stat-icon blue">📊</div><div><div class="stat-num">2+</div><div class="stat-label">Years in marketing analytics & ML</div></div></div>
+      <div class="stat-card"><div class="stat-icon gold">⚡</div><div><div class="stat-num">30,000+</div><div class="stat-label">EV chargers modelled end-to-end</div></div></div>
+      <div class="stat-card"><div class="stat-icon green">🎯</div><div><div class="stat-num">95%+</div><div class="stat-label">Production accuracy on ML deployments</div></div></div>
+      <div class="stat-card"><div class="stat-icon blue">🌐</div><div><div class="stat-num">4</div><div class="stat-label">Domains: entertainment, EV, pharma, hospitality & retail</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-text">
+        <p class="section-label">About Me</p>
+        <h2 class="section-title">Analyst, builder,<br>and methods thinker</h2>
+        <p>I'm a Data Scientist with a statistics foundation from the University of Calcutta, currently working as a Senior Analyst at Ipsos MMA — one of the world's leading marketing effectiveness firms.</p>
+        <p>My background is deliberately broad. I've built production-grade ML pipelines for IoT-scale infrastructure, designed causal inference tools from scratch, and operated within structured econometric frameworks for global brand clients. I understand models both as a builder and as a practitioner.</p>
+        <p>What I care about most is the space where rigorous methodology meets real business decisions — where a model coefficient becomes a budget call, or an experiment result changes a campaign strategy.</p>
+        <p>I'm based in Bengaluru, India, and open to conversations about marketing analytics, ML engineering, and data science roles — especially those with global scope.</p>
+      </div>
+      <div>
+        <p class="section-label" style="margin-bottom: 1.25rem;">Core Expertise</p>
+        <div class="expertise-grid">
+          <div class="expertise-item"><h4>Marketing Mix Modeling</h4><p>Two-stage constrained regression, baseline decomposition, incremental vs base variable classification</p></div>
+          <div class="expertise-item"><h4>Digital Attribution</h4><p>Placement screening, tactic-level contribution, time-varying coefficients, KPI synthesis</p></div>
+          <div class="expertise-item"><h4>Causal Inference</h4><p>A/B testing, RCT design, ANCOVA, trend adjustment, effect decomposition</p></div>
+          <div class="expertise-item"><h4>ML Engineering</h4><p>End-to-end pipelines, XGBoost, clustering, hyperparameter tuning, AWS SageMaker</p></div>
+          <div class="expertise-item"><h4>Time Series</h4><p>ARIMA, SARIMAX, UCM, Holt-Winters, forecasting for sales & operations</p></div>
+          <div class="expertise-item"><h4>Bayesian Methods</h4><p>Hierarchical models, Bayesian linear regression, belief networks, PyMC</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="experience">
+  <div class="container">
+    <p class="section-label">Experience</p>
+    <h2 class="section-title">Where I've worked<br>and what I've built</h2>
+    <div style="margin-top: 3rem;" class="timeline">
+
+      <div class="timeline-item">
+        <div class="timeline-header">
+          <div><div class="timeline-role">Senior Analyst</div><div class="timeline-company">Ipsos MMA · Bengaluru</div></div>
+          <span class="timeline-date">Jan 2026 – Present</span>
+        </div>
+        <p class="timeline-desc">Global leader in marketing effectiveness measurement. Part of the agile attribution team focused on digital media.</p>
+        <div class="work-modules">
+          <div class="work-module">
+            <span class="ownership-badge badge-sole">Full ownership</span>
+            <h4>Agile Attribution — Hospitality & Retail</h4>
+            <p>End-to-end attribution workflow for global clients in hospitality and retail. Data QC, placement screening, analytical planning with incremental (media tactics) vs base (seasonality, holidays, promotions, economic drivers) variable classification, spec file configuration, two-stage constrained regression, time-varying coefficients, results validation, and KPI synthesis (CPM, ROAS, iRAS, ROI).</p>
+          </div>
+          <div class="work-module">
+            <span class="ownership-badge badge-team">Training + scenario project</span>
+            <h4>MMM Methodology</h4>
+            <p>Completed Ipsos MMA's internal MMM training covering full mixed-media architecture — offline channels, adstock and carryover modeling, saturation curves, and baseline decomposition across seasonal, promotional, and economic drivers. Executed a scenario-based multi-channel MMM project end-to-end.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-header">
+          <div><div class="timeline-role">Data Scientist</div><div class="timeline-company">Involead Services Pvt. Ltd. · Kolkata</div></div>
+          <span class="timeline-date">Jul 2024 – Dec 2024</span>
+        </div>
+        <p class="timeline-desc">Data science consultancy delivering analytics across marketing, clean energy, and retail domains.</p>
+        <div class="work-modules">
+          <div class="work-module">
+            <span class="ownership-badge badge-team">Core team · 3 members</span>
+            <h4>MMM — Digital Entertainment</h4>
+            <p>Full cross-media MMM across TV, digital, search, and social. Constrained regression, UCM + SARIMAX baseline decomposition, two-stage Brand Equity Models, Bayesian long-term impact modeling, ETL automation saving 40% manual effort.</p>
+          </div>
+          <div class="work-module">
+            <span class="ownership-badge badge-sole">Independent</span>
+            <h4>A/B Testing & RCT Platform</h4>
+            <p>Streamlit app for non-technical consultants — ANCOVA, t-tests, trend adjustment, full RCT framework with randomization checks and treatment effect decomposition.</p>
+          </div>
+          <div class="work-module">
+            <span class="ownership-badge badge-sole">Sole contributor</span>
+            <h4>EV Predictive Maintenance</h4>
+            <p>End-to-end ML pipeline on AWS SageMaker for 30,000+ EV chargers. XGBoost + time series, MiniBatchKMeans and K-Medoids segmentation, 95%+ accuracy, Power BI integration.</p>
+          </div>
+          <div class="work-module">
+            <span class="ownership-badge badge-sole">Independent</span>
+            <h4>Product Assortment Optimisation</h4>
+            <p>XGBoost models for SKU assortment using historical sales and seasonality signals. 95%+ accuracy, reducing overstock risk.</p>
+          </div>
+          <div class="work-module">
+            <span class="ownership-badge badge-training">Training · guided</span>
+            <h4>MMM — Pharma</h4>
+            <p>OLS/WLS MMM for multiple pharma brands under senior guidance. 5–10% improvement in budget allocation efficiency across brands.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="container">
+    <p class="section-label">Projects</p>
+    <h2 class="section-title">Selected work across<br>domains and methods</h2>
+    <div class="projects-grid" style="margin-top: 2.5rem;">
+
+      <div class="project-card">
+        <div class="project-card-top"><div class="project-icon blue">📈</div><span class="project-tag">Attribution · Ipsos MMA</span></div>
+        <div class="project-body">
+          <div class="project-title">Digital Attribution — Hospitality & Retail</div>
+          <p class="project-desc">End-to-end agile attribution for a global hospitality brand and a global retail/grocery client. Analytical planning with incremental vs base variable classification — covering media tactics, seasonality, holidays, promotions, and economic drivers. Spec configuration, two-stage constrained regression at tactic and placement level, time-varying coefficient modeling, and KPI delivery across CPM, ROAS, iRAS, and ROI.</p>
+          <div class="project-tags"><span class="tech-tag">Constrained Regression</span><span class="tech-tag">Two-Stage Attribution</span><span class="tech-tag">Baseline Decomposition</span><span class="tech-tag">Ipsos MMA Platform</span></div>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-card-top"><div class="project-icon gold">📡</div><span class="project-tag">MMM · Entertainment</span></div>
+        <div class="project-body">
+          <div class="project-title">Marketing Mix Model — Digital Entertainment</div>
+          <p class="project-desc">Full cross-media MMM for a digital entertainment client across TV, digital, search, and social. Constrained regression with SGD, UCM + SARIMAX for baseline decomposition covering seasonal, holiday, and economic drivers, two-stage Brand Equity Model for long-term brand lift estimation, Bayesian hierarchical impact modeling, Python ETL automation saving 40% manual effort.</p>
+          <div class="project-tags"><span class="tech-tag">Python</span><span class="tech-tag">Statsmodels</span><span class="tech-tag">ARIMA / UCM</span><span class="tech-tag">PyMC</span><span class="tech-tag">Pandas</span></div>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-card-top"><div class="project-icon green">⚡</div><span class="project-tag">ML Engineering · EV</span></div>
+        <div class="project-body">
+          <div class="project-title">EV Charger Predictive Maintenance</div>
+          <p class="project-desc">Sole contributor on a production ML pipeline for 30,000+ EV chargers on AWS SageMaker. XGBoost + time series for uptime, utilization, and revenue prediction. MiniBatchKMeans and K-Medoids segmentation by usage patterns, age, and connector type. RandomizedSearchCV hyperparameter tuning. 95%+ production accuracy. Deployed to S3 with Power BI dashboard integration.</p>
+          <div class="project-tags"><span class="tech-tag">AWS SageMaker</span><span class="tech-tag">XGBoost</span><span class="tech-tag">Scikit-learn</span><span class="tech-tag">Redshift</span><span class="tech-tag">Power BI</span></div>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-card-top"><div class="project-icon purple">🔬</div><span class="project-tag">Causal Inference</span></div>
+        <div class="project-body">
+          <div class="project-title">A/B Testing & RCT Platform</div>
+          <p class="project-desc">Independently built a Streamlit application enabling non-technical consultants to run statistically valid experiments without coding. ANCOVA, t-tests, trend adjustment, automated visualizations for time-based and region-based designs. Full RCT framework with randomization checks, balance testing, and treatment effect decomposition.</p>
+          <div class="project-tags"><span class="tech-tag">Python</span><span class="tech-tag">Streamlit</span><span class="tech-tag">Statsmodels</span><span class="tech-tag">ANCOVA</span><span class="tech-tag">RCT</span></div>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-card-top"><div class="project-icon coral">💊</div><span class="project-tag">MMM · Pharma</span></div>
+        <div class="project-body">
+          <div class="project-title">Marketing Mix Modeling — Pharma</div>
+          <p class="project-desc">Participated in OLS/WLS-based MMM builds for multiple pharma brands under senior guidance. Improved marketing budget allocation by 5–10%. Exposure to regulated-industry modeling constraints, channel contribution estimation, and ROI-based budget optimization frameworks across multiple brands.</p>
+          <div class="project-tags"><span class="tech-tag">OLS / WLS Regression</span><span class="tech-tag">Python</span><span class="tech-tag">Statsmodels</span></div>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-card-top"><div class="project-icon gold">🛒</div><span class="project-tag">ML · Retail</span></div>
+        <div class="project-body">
+          <div class="project-title">Product Assortment Optimisation</div>
+          <p class="project-desc">Built and deployed XGBoost models to optimise SKU assortment decisions using historical sales patterns and seasonality signals. Achieved 95%+ accuracy, reducing overstock risk and improving inventory allocation efficiency for retail clients.</p>
+          <div class="project-tags"><span class="tech-tag">XGBoost</span><span class="tech-tag">Scikit-learn</span><span class="tech-tag">Feature Engineering</span><span class="tech-tag">Python</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="container">
+    <p class="section-label">Skills</p>
+    <h2 class="section-title">Tools and methods<br>I work with</h2>
+    <div class="skills-grid">
+      <div class="skill-group"><h3>Languages & Platforms</h3><div class="skill-pills"><span class="skill-pill">Python</span><span class="skill-pill">R</span><span class="skill-pill">SQL</span><span class="skill-pill">Excel</span><span class="skill-pill">AWS SageMaker</span><span class="skill-pill">Amazon Redshift</span><span class="skill-pill">AWS Bedrock</span><span class="skill-pill">Streamlit</span><span class="skill-pill">Power BI</span></div></div>
+      <div class="skill-group"><h3>ML & Statistical Libraries</h3><div class="skill-pills"><span class="skill-pill">Scikit-learn</span><span class="skill-pill">XGBoost</span><span class="skill-pill">LightGBM</span><span class="skill-pill">Statsmodels</span><span class="skill-pill">PyMC</span><span class="skill-pill">Numpy</span><span class="skill-pill">Pandas</span><span class="skill-pill">Plotly</span></div></div>
+      <div class="skill-group"><h3>Modeling Methods</h3><div class="skill-pills"><span class="skill-pill">Marketing Mix Modeling</span><span class="skill-pill">Two-Stage Attribution</span><span class="skill-pill">Constrained Regression</span><span class="skill-pill">Baseline Decomposition</span><span class="skill-pill">UCM</span><span class="skill-pill">ARIMA / SARIMAX</span><span class="skill-pill">Holt-Winters</span><span class="skill-pill">Bayesian Modeling</span><span class="skill-pill">Clustering</span></div></div>
+      <div class="skill-group"><h3>Causal & Experimental</h3><div class="skill-pills"><span class="skill-pill">A/B Testing</span><span class="skill-pill">RCT Design</span><span class="skill-pill">ANCOVA</span><span class="skill-pill">Causal Inference</span><span class="skill-pill">Trend Adjustment</span><span class="skill-pill">Effect Decomposition</span><span class="skill-pill">MTA</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="education">
+  <div class="container">
+    <p class="section-label">Education</p>
+    <h2 class="section-title">Academic foundation</h2>
+    <div class="edu-grid" style="margin-top: 2rem;">
+      <div class="edu-card">
+        <div class="edu-degree">M.Sc. in Statistics</div>
+        <div class="edu-uni">University of Calcutta</div>
+        <div class="edu-meta"><span class="edu-badge">CGPA 6.68</span><span class="edu-badge">2022 – 2024</span></div>
+        <p class="edu-spec">Specializations: Biostatistics, Econometrics, Statistical Analysis of Big Data, Atmospheric Science</p>
+      </div>
+      <div class="edu-card">
+        <div class="edu-degree">B.Sc. (Hons) in Statistics</div>
+        <div class="edu-uni">Bidhannagar College</div>
+        <div class="edu-meta"><span class="edu-badge">CGPA 9.61</span><span class="edu-badge">2019 – 2022</span></div>
+        <p class="edu-spec">Minors: Mathematics, Economics · Project: GLM for Health Risk Prediction — 0.94 AUC on heart disease prediction using logistic and probit models.</p>
+      </div>
+    </div>
+    <div style="margin-top: 1.5rem; background: var(--bg-white); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.25rem 1.5rem;">
+      <p style="font-size: 0.825rem; font-weight: 600; color: var(--navy); margin-bottom: 0.75rem; letter-spacing: 0.04em; text-transform: uppercase; font-family: var(--mono);">Certifications</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+        <span class="tech-tag" style="font-size: 0.775rem;">IBM Data Visualization Using Python</span>
+        <span class="tech-tag" style="font-size: 0.775rem;">IBM Data Analysis Using Python</span>
+        <span class="tech-tag" style="font-size: 0.775rem;">IBM Data Science Fundamentals 2023</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="container">
+    <div class="contact-inner">
+      <p class="section-label">Contact</p>
+      <h2 class="section-title">Let's connect</h2>
+      <p class="contact-sub">Open to conversations about marketing analytics, ML roles, and collaborations — especially those with international scope or depth in marketing effectiveness.</p>
+      <div class="contact-links">
+        <a href="mailto:dipanghosh1803@gmail.com" class="contact-link">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+          dipanghosh1803@gmail.com
+        </a>
+        <a href="https://www.linkedin.com/in/dipanghoshdatascientist/" target="_blank" class="contact-link">
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          LinkedIn
+        </a>
+        <a href="tel:+918420453476" class="contact-link">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
+          +91 84204 53476
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer><p>© 2026 Dipan Ghosh · Bengaluru, India · dipanghosh.github.io</p></footer>
+</body>
+</html>
