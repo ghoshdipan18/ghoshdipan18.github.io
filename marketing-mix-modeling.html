@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marketing Mix Modeling — Dipan Ghosh</title>
+<meta name="description" content="A practical, worked-example deep dive into Marketing Mix Modeling: the funnel, halo & cannibalization, adstock, saturation curves, and estimation methods.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0b1220;
+    --surface: #101b2d;
+    --surface-2: #131f33;
+    --border: #22334a;
+    --text: #e8edf4;
+    --text-dim: #93a2b7;
+    --text-faint: #5f7189;
+    --teal: #35c7b4;
+    --amber: #e8a94c;
+    --serif: 'Fraunces', Georgia, serif;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html{ scroll-behavior: smooth; }
+
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.7;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* subtle grid texture in background, like graph paper for an analyst */
+  body::before{
+    content:"";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 44px 44px;
+    z-index: 0;
+  }
+
+  a{ color: var(--teal); text-decoration: none; }
+  a:hover{ text-decoration: underline; }
+  a:focus-visible, button:focus-visible{ outline: 2px solid var(--teal); outline-offset: 3px; }
+
+  .topbar{
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display:flex;
+    align-items:center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    background: rgba(11,18,32,0.85);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar .back{
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-dim);
+    letter-spacing: 0.02em;
+  }
+  .topbar .back:hover{ color: var(--teal); }
+  .topbar .tag{
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-faint);
+    letter-spacing: 0.04em;
+  }
+
+  .wrap{
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 56px 28px 100px;
+    display: grid;
+    grid-template-columns: 200px minmax(0,720px);
+    gap: 56px;
+  }
+
+  /* ---- Hero ---- */
+  .hero{ grid-column: 1 / -1; margin-bottom: 40px; }
+  .eyebrow{
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--teal);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  h1.title{
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(2rem, 4vw, 3.1rem);
+    line-height: 1.12;
+    margin: 0 0 20px;
+    max-width: 14ch;
+  }
+  .dek{
+    font-size: 1.15rem;
+    color: var(--text-dim);
+    max-width: 62ch;
+    margin: 0 0 32px;
+  }
+
+  /* Signature hero graphic: three response curves */
+  .curve-panel{
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 6px;
+    padding: 24px 24px 16px;
+    max-width: 720px;
+  }
+  .curve-panel svg{ width: 100%; height: auto; display:block; }
+  .curve-legend{
+    display:flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--text-dim);
+  }
+  .curve-legend span{ display:flex; align-items:center; gap:7px; }
+  .swatch{ width: 14px; height: 3px; border-radius: 2px; display:inline-block; }
+
+  /* ---- TOC ---- */
+  nav.toc{
+    align-self: start;
+    position: sticky;
+    top: 90px;
+  }
+  nav.toc .toc-label{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-faint);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  nav.toc ol{
+    list-style: none;
+    margin: 0; padding: 0;
+    border-left: 1px solid var(--border);
+  }
+  nav.toc li{ margin: 0; }
+  nav.toc a{
+    display:block;
+    padding: 7px 0 7px 16px;
+    margin-left: -1px;
+    border-left: 1px solid transparent;
+    font-size: 13.5px;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+  nav.toc a:hover{
+    color: var(--text);
+    text-decoration: none;
+    border-left: 1px solid var(--teal);
+  }
+
+  /* ---- Article ---- */
+  article{ min-width: 0; }
+
+  section{ margin-bottom: 56px; scroll-margin-top: 90px; }
+
+  h2{
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 1.65rem;
+    color: var(--text);
+    margin: 0 0 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  h2 .num{
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    color: var(--teal);
+    font-weight: 500;
+  }
+
+  h3{
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 1.2rem;
+    color: var(--text);
+    margin: 32px 0 14px;
+  }
+  h3 .num{ color: var(--amber); font-family: var(--mono); font-size: 0.85em; margin-right: 8px; }
+
+  h4{
+    font-size: 1rem;
+    color: var(--teal);
+    margin: 22px 0 8px;
+    font-weight: 600;
+  }
+
+  p{ margin: 0 0 16px; color: var(--text); }
+  section > p, section li { color: #cdd6e2; }
+
+  strong{ color: var(--text); font-weight: 600; }
+
+  ul, ol.body-list{ padding-left: 22px; margin: 0 0 16px; }
+  li{ margin-bottom: 8px; }
+  li ul{ margin-top: 8px; }
+
+  hr{ border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+  code{
+    font-family: var(--mono);
+    background: rgba(255,255,255,0.06);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88em;
+    color: var(--amber);
+  }
+
+  .formula{
+    font-family: var(--mono);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--amber);
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin: 16px 0 20px;
+    font-size: 0.98rem;
+    color: #f2d9ab;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  .callout{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--teal);
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin: 16px 0 20px;
+  }
+  .callout .callout-label{
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--teal);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+    display:block;
+  }
+  .callout p:last-child{ margin-bottom: 0; }
+
+  .callout.answer{ border-left-color: var(--amber); }
+  .callout.answer .callout-label{ color: var(--amber); }
+
+  .funnel-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .funnel-card{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px;
+  }
+  .funnel-card .stage{
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--teal);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+  .funnel-card .goal{
+    font-size: 13.5px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+  .funnel-card ul{ margin: 0; padding-left: 18px; font-size: 14px; }
+  .funnel-card li{ margin-bottom: 6px; color: #cdd6e2; }
+
+  .drivers-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 10px 24px;
+    margin: 16px 0 20px;
+  }
+  .driver{
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14.5px;
+  }
+  .driver strong{ color: var(--amber); }
+
+  table.method-table{
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+  }
+  table.method-table th, table.method-table td{
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  table.method-table th{
+    font-family: var(--mono);
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-faint);
+  }
+  table.method-table td:first-child{ color: var(--teal); font-weight: 600; white-space: nowrap; }
+
+  footer.article-footer{
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-faint);
+  }
+
+  @media (max-width: 880px){
+    .wrap{ grid-template-columns: 1fr; }
+    nav.toc{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="back" href="https://ghoshdipan18.github.io/#projects">&larr; Back to Portfolio</a>
+  <span class="tag">MMM · Methodology Notes</span>
+</div>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow">Marketing Analytics · Methodology Deep Dive</div>
+    <h1 class="title">Marketing Mix Modeling, from First Principles</h1>
+    <p class="dek">How companies decide where marketing money should go — the funnel, the sales drivers, portfolio effects, the non-linear transformations that make the math honest, and the optimization methods used to estimate it all.</p>
+
+    <div class="curve-panel">
+      <svg viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Three response curve shapes: linear, concave power, and S-shaped Hill saturation">
+        <line x1="50" y1="180" x2="610" y2="180" stroke="#22334a" stroke-width="1"/>
+        <line x1="50" y1="20" x2="50" y2="180" stroke="#22334a" stroke-width="1"/>
+        <text x="330" y="208" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#5f7189">MEDIA SPEND</text>
+        <text x="20" y="100" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="#5f7189" transform="rotate(-90 20 100)">SALES RESPONSE</text>
+
+        <!-- linear -->
+        <path d="M 50 180 L 610 40" fill="none" stroke="#5f7189" stroke-width="2" stroke-dasharray="4 4"/>
+        <!-- power (concave, diminishing from start) -->
+        <path d="M 50 180 C 150 60, 300 35, 610 28" fill="none" stroke="#e8a94c" stroke-width="2.5"/>
+        <!-- hill s-curve -->
+        <path d="M 50 180 C 200 178, 260 60, 360 45 C 460 32, 520 26, 610 24" fill="none" stroke="#35c7b4" stroke-width="2.5"/>
+      </svg>
+      <div class="curve-legend">
+        <span><i class="swatch" style="background:#5f7189"></i>Linear (naive, wrong)</span>
+        <span><i class="swatch" style="background:#e8a94c"></i>Power (diminishing from spend #1)</span>
+        <span><i class="swatch" style="background:#35c7b4"></i>Hill, γ&gt;1 (true S-curve)</span>
+      </div>
+    </div>
+  </div>
+
+  <nav class="toc" aria-label="Table of contents">
+    <div class="toc-label">On this page</div>
+    <ol>
+      <li><a href="#what-why">1. What &amp; why</a></li>
+      <li><a href="#funnel">2. The funnel</a></li>
+      <li><a href="#drivers">3. Sales drivers</a></li>
+      <li><a href="#halo">4. Halo &amp; cannibalization</a></li>
+      <li><a href="#transformations">5. Transformations</a></li>
+      <li><a href="#estimation">6. Estimation methods</a></li>
+    </ol>
+  </nav>
+
+  <article>
+
+    <section id="what-why">
+      <h2><span class="num">01</span> What is MMM, and Why Do We Need It?</h2>
+      <p>Imagine you're launching a new product. It's manufactured, it's sitting in warehouses, it's live on shelves and on e-commerce platforms. Everything is ready — except one problem: <strong>nobody knows it exists yet.</strong></p>
+      <p>Before anyone can buy your product, they have to become aware of it, consider it against alternatives, and eventually decide to purchase it. That journey doesn't happen on its own — it's driven by marketing. So you start advertising: television, display banners, radio spots, out-of-home (OOH) billboards, social media, OTT platforms, paid search, and more.</p>
+      <p>But here's the harder problem: <strong>advertising is expensive, and every channel behaves differently.</strong> A rupee spent on TV doesn't produce the same sales impact as a rupee spent on paid search. Some channels build awareness slowly over weeks; others convert almost instantly. Some channels have a ceiling beyond which extra spend adds almost nothing. If you're a CMO with a fixed budget, the question isn't just "should I advertise" — it's:</p>
+      <ul>
+        <li>How much should I spend on each channel?</li>
+        <li>Am I spending too much on channels that have already saturated?</li>
+        <li>Which channels are actually driving incremental sales, versus just being present when a sale was going to happen anyway?</li>
+        <li>How do external factors — price changes, competitor activity, the economy — interact with my marketing?</li>
+      </ul>
+      <p><strong>Marketing Mix Modeling (MMM)</strong> is the statistical/econometric approach built to answer exactly these questions. At its core, MMM decomposes a business outcome (typically sales or revenue) into the individual contributions of every driver that plausibly explains it — media spend across channels, price, promotions, distribution, macroeconomic conditions, seasonality, competitive activity, and a residual "base" that represents demand that would exist even with zero marketing.</p>
+      <p>The output isn't just "which channel worked" — it's a quantified, comparable <strong>ROI (or ROAS) for every driver</strong>, expressed in the same units, so a media planner can genuinely compare a rupee of TV against a rupee of paid search and make an evidence-based reallocation decision rather than a gut-feel one.</p>
+    </section>
+
+    <section id="funnel">
+      <h2><span class="num">02</span> The Marketing Funnel: Where Each Driver Lives</h2>
+      <p>Not all marketing channels do the same job. It helps to think of the customer journey as a funnel with (broadly) four stages, and to map each channel to the stage where it typically works hardest — while keeping in mind that in practice, channels are not rigidly confined to one stage.</p>
+
+      <div class="funnel-grid">
+        <div class="funnel-card">
+          <div class="stage">Awareness / Attract</div>
+          <div class="goal">Get in front of people who don't know the brand exists yet. Broad reach, low precision, built for recall.</div>
+          <ul>
+            <li>TV — Linear/National, Local, Connected (CTV), Addressable</li>
+            <li>Radio</li>
+            <li>OOH (billboards, transit)</li>
+            <li>Print (leaflets)</li>
+            <li>Social media (reach placements)</li>
+          </ul>
+        </div>
+        <div class="funnel-card">
+          <div class="stage">Consideration / Inform</div>
+          <div class="goal">Nudge someone who knows the brand toward evaluating it seriously.</div>
+          <ul>
+            <li>Video (YouTube pre-roll, OTT)</li>
+            <li>Display ads</li>
+            <li>Social media (engagement/demo formats)</li>
+          </ul>
+        </div>
+        <div class="funnel-card">
+          <div class="stage">Conversion</div>
+          <div class="goal">Turn intent into an actual purchase, right before or at the transaction moment.</div>
+          <ul>
+            <li>Paid search — branded &amp; non-branded</li>
+            <li>Affiliate marketing</li>
+            <li>Retargeting</li>
+          </ul>
+        </div>
+        <div class="funnel-card">
+          <div class="stage">Organic (baseline)</div>
+          <div class="goal">Unpaid channels, modeled as brand equity rather than spend drivers.</div>
+          <ul>
+            <li>Organic search (SEO, brand strength)</li>
+            <li>Organic social</li>
+          </ul>
+        </div>
+      </div>
+
+      <h4>TV, unpacked</h4>
+      <p><strong>Linear/National TV</strong> is traditional scheduled broadcast reaching mass audiences (a soft drink spot during a cricket match). <strong>Local TV</strong> is region/city-specific — useful when demand is geographically concentrated. <strong>Connected TV (CTV)</strong> serves ads through streaming apps on smart TVs, combining big-screen impact with digital-style targeting. <strong>Addressable TV</strong> targets at the household level via set-top boxes — two households watching the same show can see different ads.</p>
+
+      <h4>Paid search, unpacked</h4>
+      <p><strong>Branded search</strong> bids on your own brand name ("Nike shoes") — high intent, but debated ROI since many of these users would've found you organically anyway. <strong>Non-branded search</strong> bids on generic category terms ("running shoes") — genuinely acquisitive, capturing demand that hasn't decided on a brand yet.</p>
+
+      <div class="callout">
+        <span class="callout-label">Important caveat</span>
+        <p>This four-stage mapping is a simplification for intuition. The <strong>same channel can operate at multiple funnel stages</strong> depending on format and targeting — social media run as broad awareness behaves very differently from social media run as retargeting, even though both are "social media" in a data feed. A good MMM doesn't assume a channel's funnel role; it lets the data — via the shape of adstock and saturation, covered in Section 5 — reveal how quickly and how strongly each channel actually converts to sales.</p>
+      </div>
+    </section>
+
+    <section id="drivers">
+      <h2><span class="num">03</span> What Else Drives Sales Besides Marketing?</h2>
+      <p>Marketing is rarely the only thing moving the needle. A model that only includes media spend and ignores everything else will misattribute the effects of these other factors onto marketing (or vice versa), producing biased ROI estimates. MMM explicitly controls for:</p>
+
+      <div class="drivers-grid">
+        <div class="driver"><strong>Price</strong> — the most direct lever; cuts typically increase volume, at a rate captured by price elasticity.</div>
+        <div class="driver"><strong>Promotion</strong> — discounts, BOGO, loyalty multipliers; short sharp spikes distinct from steady-state price effects.</div>
+        <div class="driver"><strong>Macroeconomic variables</strong> — unemployment, mortgage/interest rates, inflation, consumer confidence.</div>
+        <div class="driver"><strong>Competitor activity</strong> — a rival's price cut or ad blitz suppresses your sales independent of anything you do.</div>
+        <div class="driver"><strong>Geography</strong> — regional demand, distribution reach, cultural preference.</div>
+        <div class="driver"><strong>Trend</strong> — slow-moving underlying trajectory, independent of any single driver.</div>
+        <div class="driver"><strong>Seasonality</strong> — festive spikes, back-to-school, monsoon effects.</div>
+        <div class="driver"><strong>Distribution / loyalty</strong> — store count, shelf availability, repeat-purchase behavior.</div>
+        <div class="driver"><strong>Brand image / equity</strong> — residual strength from accumulated marketing and reputation.</div>
+      </div>
+      <p>All of these compete with marketing to explain the variance in sales — which is exactly why they need to be in the model rather than left out.</p>
+    </section>
+
+    <section id="halo">
+      <h2><span class="num">04</span> Portfolio Halo and Cannibalization</h2>
+      <p>These are two of the more counterintuitive — and important — effects MMM is used to detect, especially for companies selling multiple related products.</p>
+
+      <h4>Portfolio Halo</h4>
+      <p>Imagine Samsung runs a heavy ad campaign for the Galaxy S26. You see the ad, get interested in "a new Samsung phone" broadly, walk into a store — and end up buying the S24 instead, perhaps because it's cheaper or in stock. Samsung didn't spend a single extra rupee promoting the S24, yet its sales went up anyway, purely as spillover from the S26 campaign. In an MMM, this shows up as a <strong>positive cross-product effect</strong>: S26 media spend has a statistically positive coefficient in the S24 sales model.</p>
+
+      <h4>Cannibalization</h4>
+      <p>Now flip the scenario. Domino's launches an aggressive push for e-commerce/app ordering, and it works — except the incremental online orders are simply orders that would've gone to the physical store anyway. Total company sales barely move; one channel just ate another's volume. In an MMM, this shows up as a <strong>negative cross-product effect</strong> — one product's driver has a negative coefficient in another related product's model.</p>
+
+      <p>Why does this matter practically? A company optimizing marketing spend needs to know <strong>net portfolio impact</strong>, not just single-product impact. Spend that looks highly effective for Product A in isolation might be neutral or even value-destructive at the portfolio level if it's mostly cannibalizing Product B. Good MMM setups model related products jointly, or include cross-effects explicitly, precisely to catch this.</p>
+    </section>
+
+    <section id="transformations">
+      <h2><span class="num">05</span> Why We Use Non-Linear Transformations</h2>
+      <p>If you plotted raw weekly ad spend against weekly sales, you'd typically get a messy, weak relationship — not because advertising doesn't work, but because the real relationship has two properties a simple linear regression cannot capture:</p>
+      <ol class="body-list">
+        <li><strong>Delayed / carryover effect</strong> — an ad seen this week doesn't only affect this week's sales; some impact lingers and decays over subsequent weeks.</li>
+        <li><strong>Diminishing returns</strong> — the first ₹10 lakh spent on a channel buys a lot of incremental sales; the next ₹10 lakh in the same week buys much less. Sales response to spend is concave, and at very low spend there can even be a slow "warm-up" region — giving the full relationship an S-shape.</li>
+      </ol>
+      <p>There are three distinct jobs split between the transformations that handle this — worth being precise about, since it's easy to conflate them:</p>
+      <ol class="body-list">
+        <li><strong>Lag</strong> — <em>when</em> does the effect start showing up at all?</li>
+        <li><strong>Decay (adstock)</strong> — once it starts, <em>how long</em> does it linger, and at what rate does it fade?</li>
+        <li><strong>Saturation (power / Hill)</strong> — for a given effective exposure, <em>how much</em> sales response does it produce — accelerating or diminishing as spend increases?</li>
+      </ol>
+
+      <h3><span class="num">5.1</span>Lag — the Pure Delay Before Any Effect Appears</h3>
+      <p>Before decay even enters the picture, many channels have a <strong>pure delay</strong>: a period of near-zero effect immediately after spend, before any impact shows up at all. This is distinct from decay, which describes how an already-present effect fades — lag describes the gap before the effect starts.</p>
+      <div class="formula">X_lagged(t) = X(t − L)</div>
+      <p>Where <code>L</code> is the lag length in weeks: the effect of spend in period <em>t</em> is only felt starting <em>L</em> periods later.</p>
+      <div class="callout">
+        <span class="callout-label">Real-life example</span>
+        <p>Think about OOH billboards or print leaflets. If a billboard goes up this week, it typically doesn't move sales this same week — there's a natural delay while enough people physically pass by, notice it, and let it sink in. If a model finds L = 1 for OOH, this week's billboard spend is expected to show sales impact only from next week onward.</p>
+      </div>
+      <p>In practice, lag and decay are often bundled into a single adstock formula rather than estimated separately (some Weibull specifications already encode "delayed peak" behavior via the shape parameter). But conceptually they answer different questions — decay asks how long the memory lasts, lag asks how long before the memory even begins. A channel can have a long lag but fast decay (leaflets: slow to kick in, fast to fade), or no lag but slow decay (TV: immediate but long-lingering).</p>
+
+      <h3><span class="num">5.2</span>Geometric Adstock — Modeling Carryover / Decay</h3>
+      <p>The simplest and most widely used decay form. This week's "effective" exposure is this week's raw spend, plus a decayed fraction of last week's effective exposure, recursively.</p>
+      <div class="formula">Adstock(t) = X(t) + λ · Adstock(t−1)</div>
+      <p>Where <code>X(t)</code> is raw spend in period <em>t</em>, and <code>λ</code> (lambda) is the decay/retention rate, between 0 and 1.</p>
+      <div class="callout">
+        <span class="callout-label">Worked example — λ = 0.5, ₹10 lakh spent in week 1 only</span>
+        <p>Week 1: ₹10L (full spend, nothing to carry yet) · Week 2: 0.5 × 10L = ₹5L · Week 3: 0.5 × 5L = ₹2.5L · Week 4: 0.5 × 2.5L = ₹1.25L.</p>
+        <p>A single week of spend keeps contributing a shrinking "echo" of exposure for several weeks afterward — exactly what lets the model credit a TV campaign for sales that happen after the ad stopped airing.</p>
+      </div>
+      <p><strong>Reading λ in real life:</strong> <strong>TV</strong> (slow-burning brand recall) typically comes out with a high λ (0.6–0.8) — a large chunk of this week's effect is still present many weeks later. <strong>Paid search or a flash promo</strong> (near-immediate action) typically comes out with a low λ (0.1–0.2) — almost all the effect happens the same week, with little memory left even one week later.</p>
+
+      <h3><span class="num">5.3</span>Weibull Adstock — Delayed and Flexible Decay Shapes</h3>
+      <p>Geometric adstock forces the effect to be strongest in the very first period and shrink monotonically from there — it can't represent a campaign whose impact <em>builds up</em> for a couple of weeks before peaking. Weibull adstock borrows the shape of the Weibull distribution to let the peak land after period 0.</p>
+      <div class="formula">w(l) = exp[ −(l / scale)^shape ]</div>
+      <p>The final adstocked value is a weighted sum of current and past spend using these <code>w(l)</code> weights instead of the fixed geometric ratio <code>λ^l</code>.</p>
+
+      <h4>Shape parameter — decides where the peak sits in time</h4>
+      <p><code>shape ≤ 1</code>: weight is highest at lag 0 and monotonically falls — behaves like geometric adstock. <code>shape &gt; 1</code>: the weight curve is low at lag 0, rises to a peak at a later lag, then falls — a genuinely delayed peak.</p>
+      <div class="callout">
+        <span class="callout-label">Real-life example</span>
+        <p>A TV campaign modeled with shape = 2.5 might show impact actually peaking around week 2–3 (people saw the ad, talked about it, searched the brand, then purchased) before fading over following weeks — something geometric adstock literally cannot produce, since its peak is mathematically locked to week 0.</p>
+      </div>
+
+      <h4>Scale parameter — controls the overall stretch along the time axis</h4>
+      <p>A small scale compresses the whole curve — the peak (if shape &gt; 1) arrives sooner and the effect fades within a few weeks. A large scale stretches it out — same shape, but the peak arrives later and the tail lingers much longer.</p>
+      <div class="callout">
+        <span class="callout-label">Real-life example</span>
+        <p>Two TV campaigns can both have shape = 2, but one with scale = 2 might peak in week 2 and be mostly gone by week 5, while one with scale = 6 might peak in week 5–6 and still show meaningful effect out to week 12 — a tactical TV burst versus a slow-building brand campaign.</p>
+      </div>
+      <p><strong>Bringing them together:</strong> a brand-building TV campaign might fit shape ≈ 2–3 and scale ≈ 4–6 (peak around week 3–4, tail lasting 10+ weeks). A tactical radio spot would typically fit shape ≈ 1 and a small scale — functionally close to geometric adstock with a low λ.</p>
+
+      <h3><span class="num">5.4</span>Power Transformation — Diminishing Returns, the Simple Version</h3>
+      <div class="formula">Response(t) = Adstock(t) ^ α</div>
+      <p>Where <code>0 &lt; α &lt; 1</code>.</p>
+      <div class="callout">
+        <span class="callout-label">Worked example — α = 0.5 (square-root transform)</span>
+        <p>Adstock = ₹1L → Response ∝ √1 = 1.00 · Adstock = ₹4L (4× spend) → √4 = 2.00 (only 2× response) · Adstock = ₹9L (9× spend) → √9 = 3.00 (only 3× response).</p>
+        <p>So increasing spend 9-fold only triples the response — each additional rupee buys progressively less. A smaller α (0.3) saturates faster; α closer to 1 (0.9) stays nearly linear over the observed range.</p>
+      </div>
+      <p><strong>The key limitation:</strong> <code>x^α</code> with 0 &lt; α &lt; 1 is <strong>concave everywhere</strong> — diminishing returns starting from the very first rupee. It cannot represent a slow-start region where initial spend does almost nothing until a threshold is crossed, after which response accelerates before eventually diminishing. That slow-start-then-accelerate-then-plateau shape is a genuine S-curve, and power transformation is structurally incapable of producing one, no matter what α you pick.</p>
+
+      <h3><span class="num">5.5</span>Hill Saturation and the Half-Saturation Constant</h3>
+      <p>The industry-standard curve, because unlike power it can flexibly represent both a pure diminishing-returns shape <em>and</em> a genuine S-shape.</p>
+      <div class="formula">Response(t) = Adstock(t)^γ / ( K^γ + Adstock(t)^γ )</div>
+
+      <h4>γ (gamma, the Hill exponent) — controls the shape</h4>
+      <p><code>γ ≤ 1</code>: concave throughout, similar in spirit to power. <code>γ &gt; 1</code>: genuinely S-shaped — a slow-start region, an inflection point, then saturation.</p>
+
+      <h4>K (the half-saturation constant) — the most business-relevant number in the model</h4>
+      <p>K is the spend level at which the channel delivers exactly 50% of its maximum possible response.</p>
+      <div class="callout">
+        <span class="callout-label">Worked example — paid search, K = ₹5 lakh/week, γ = 1.2</span>
+        <p>At Adstock = ₹5L (exactly K): Response = 5<sup>1.2</sup>/(5<sup>1.2</sup>+5<sup>1.2</sup>) = 0.50 → exactly half of max, by definition of K.</p>
+        <p>At Adstock = ₹1L (well below K): ≈ 0.13 → only 13% of max response — plenty of room to grow.</p>
+        <p>At Adstock = ₹20L (well above K): ≈ 0.83 → 83% of max — quadrupling spend from ₹5L to ₹20L only moved response from 50% to 83%, nowhere near 4×.</p>
+      </div>
+      <p><strong>What this tells a planner:</strong> if paid search runs at ₹15–20L/week with K = ₹5L, that channel is heavily saturated — incremental budget there is largely wasted. If OOH in the same portfolio has K = ₹25L/week and current spend is only ₹8L/week, it still has significant unsaturated room. This K-vs-current-spend comparison across every channel is exactly what feeds a <strong>budget reallocation exercise</strong> — moving money from over-saturated to under-saturated channels to raise total sales at the same total budget.</p>
+
+      <h3><span class="num">5.6</span>Does Adstock + Power + Lag Give You an S-Curve?</h3>
+      <div class="callout answer">
+        <span class="callout-label">Short answer: No</span>
+        <p><strong>Lag</strong> only shifts <em>when</em> the effect starts appearing in time — it doesn't touch the shape of the spend-to-response relationship. <strong>Adstock</strong> (geometric or Weibull) only reshapes how the effect is distributed across time — front-loaded vs. delayed-peak, fast-fading vs. long-lingering — again, purely a time-domain transformation applied before saturation. <strong>Power</strong>, applied after lag and adstock, is what finally introduces curvature — but <code>x^α</code> (0 &lt; α &lt; 1) is concave for every value of x greater than zero. There's no convex (accelerating) region; its second derivative is negative throughout.</p>
+        <p>So <strong>Adstock + Lag + Power gives carryover in time, plus pure diminishing returns in spend level — but never an S-shape.</strong> A genuine S-curve needs a saturation function with both a convex region at low spend and a concave region at high spend, with an inflection point in between — exactly what <strong>Hill saturation with γ &gt; 1</strong> (or a logistic/Gompertz curve) provides, and Power structurally cannot.</p>
+      </div>
+    </section>
+
+    <section id="estimation">
+      <h2><span class="num">06</span> Estimating the Model: Solving for the Coefficients</h2>
+      <p>Once every driver has been transformed (adstocked + saturated where relevant), the model still needs to estimate how much of the variation in sales each transformed driver actually explains. Different estimation methods suit different constraints, scale, and business requirements.</p>
+
+      <table class="method-table">
+        <thead>
+          <tr><th>Method</th><th>How it works</th><th>When it's used</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>OLS</td>
+            <td>Minimizes sum of squared errors between predicted and actual sales, no constraints.</td>
+            <td>Fast baseline — but nothing stops a media channel from getting a negative coefficient, which is usually implausible and unacceptable to present to a client.</td>
+          </tr>
+          <tr>
+            <td>Constrained regression</td>
+            <td>Same least-squares objective, restricted to pre-specified sign/bounds (e.g. media ≥ 0).</td>
+            <td>Default for real MMM work — statistically reasonable and consistent with known business logic, since the output directly drives budget decisions.</td>
+          </tr>
+          <tr>
+            <td>SGD</td>
+            <td>Iteratively updates coefficients using the gradient computed on random batches of data.</td>
+            <td>Useful with a large number of parameters (hundreds of drivers across geographies/SKUs), regularization, or when a closed-form solution doesn't exist.</td>
+          </tr>
+          <tr>
+            <td>Newton / Truncated Newton</td>
+            <td>Second-order method — uses curvature (Hessian or an approximation) to choose step size and direction.</td>
+            <td>Faster, more precise convergence for the non-linear, non-convex problem MMM becomes once adstock and Hill parameters are estimated jointly with the coefficients. "Truncated" approximates the Hessian to stay tractable at scale.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p><strong>Practical takeaway:</strong> the choice usually isn't a competition of philosophies — it's about which optimization problem you actually have. Estimating just the linear coefficients with fixed adstock/saturation parameters → constrained OLS-style regression is usually sufficient and more interpretable. Jointly optimizing adstock decay rates, Hill curve shapes, <em>and</em> regression coefficients all at once — a genuinely non-convex problem with no closed-form solution — is where gradient-based or Newton-based iterative solvers become necessary.</p>
+    </section>
+
+    <footer class="article-footer">
+      <span>Dipan Ghosh · MMM &amp; Attribution Notes</span>
+      <a href="https://ghoshdipan18.github.io/">ghoshdipan18.github.io</a>
+    </footer>
+
+  </article>
+</div>
+
+</body>
+</html>
